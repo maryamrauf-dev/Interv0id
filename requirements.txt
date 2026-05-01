@@ -1,0 +1,7 @@
+streamlit
+groq
+pandas
+python-dotenv
+PyPDF2
+audio-recorder-streamlit
+gTTS

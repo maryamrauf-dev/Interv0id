@@ -65,6 +65,26 @@ def hide_sidebar_and_render_navbar():
         color: white !important;
         box-shadow: 0 4px 15px rgba(92, 77, 255, 0.4);
     }
+
+    /* Make the navigation horizontally scrollable on mobile */
+    @media (max-width: 768px) {
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) {
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px;
+            /* Hide scrollbar for a cleaner look */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        div[data-testid="stHorizontalBlock"]:has(.logo-text)::-webkit-scrollbar {
+            display: none;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div[data-testid="column"] {
+            min-width: max-content !important;
+            flex: 0 0 auto !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 

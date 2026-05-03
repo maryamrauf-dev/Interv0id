@@ -152,12 +152,17 @@ else:
             
             if audio_bytes and st.session_state.get(f"last_audio_{idx}") != audio_bytes:
                 st.session_state[f"last_audio_{idx}"] = audio_bytes
-                with st.spinner("Transcribing your answer via Whisper..."):
-                    transcript = st.session_state.engine.transcribe_audio(audio_bytes)
-                    if transcript and not transcript.startswith("Error"):
-                        st.session_state[text_key] = (st.session_state[text_key] + " " + transcript).strip()
-                    else:
-                        st.error(transcript)
+                
+                # Check for extremely short audio to prevent 400 errors from Whisper
+                if len(audio_bytes) < 10000:
+                    st.warning("⚠️ Audio was too short! Please click the microphone once to start (it will turn red), speak, and click it again to stop.")
+                else:
+                    with st.spinner("Transcribing your answer via Whisper..."):
+                        transcript = st.session_state.engine.transcribe_audio(audio_bytes)
+                        if transcript and not transcript.startswith("Error"):
+                            st.session_state[text_key] = (st.session_state[text_key] + " " + transcript).strip()
+                        else:
+                            st.error(transcript)
                         
             with col_text:
                 user_answer = st.text_area("Your Answer", height=100, key=text_key, label_visibility="collapsed", placeholder="Type your response here or dictate via the microphone...")

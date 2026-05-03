@@ -27,10 +27,10 @@ footer {visibility: hidden;}
     margin-bottom: 0px;
     background: linear-gradient(90deg, #5c4dff 0%, #a291ff 40%, #ffffff 50%, #a291ff 60%, #5c4dff 100%);
     background-size: 200% auto;
-    color: #5c4dff;
+    color: transparent;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 15px rgba(92, 77, 255, 0.6));
+    text-shadow: 0 0 25px rgba(92, 77, 255, 0.4);
     padding-bottom: 10px;
     animation: shine 3s linear infinite;
 }
@@ -81,6 +81,7 @@ button[kind="primary"]:hover {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-bottom: 20px;
 }
 .feature-card::before {
     content: "";

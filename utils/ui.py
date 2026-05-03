@@ -3,11 +3,8 @@ import streamlit as st
 def hide_sidebar_and_render_navbar():
     st.markdown("""
 <style>
-    /* Hide the Streamlit sidebar, header, and footer */
-    [data-testid="collapsedControl"] { display: none !important; }
-    [data-testid="stSidebar"] { display: none !important; }
+    /* Hide the Streamlit footer and main menu (three dots) */
     #MainMenu { display: none !important; }
-    header { display: none !important; }
     footer { display: none !important; }
 
     /* Adjust padding to remove blank space from hidden header */
@@ -33,6 +30,46 @@ def hide_sidebar_and_render_navbar():
         border-radius: 8px;
         font-size: 1.2rem;
         font-weight: 900;
+    }
+
+    /* Hide the default Streamlit pages navigation in the sidebar */
+    [data-testid="stSidebarNav"] { display: none !important; }
+
+    /* Desktop styles: Hide sidebar & header, show top navbar horizontally scrollable */
+    @media (min-width: 769px) {
+        header { display: none !important; }
+        [data-testid="collapsedControl"] { display: none !important; }
+        [data-testid="stSidebar"] { display: none !important; }
+        
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 5px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.logo-text)::-webkit-scrollbar {
+            display: none;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div {
+            min-width: max-content !important;
+            flex: 0 0 auto !important;
+            width: max-content !important;
+        }
+    }
+
+    /* Mobile styles: Show sidebar, hide top navbar */
+    @media (max-width: 768px) {
+        /* Keep header transparent so hamburger menu is visible but no background block */
+        header { 
+            background: transparent !important;
+        }
+        /* This hides the custom top horizontal navbar block */
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) {
+            display: none !important;
+        }
     }
 
     /* Target Streamlit page links to style them like a navbar */
@@ -65,37 +102,10 @@ def hide_sidebar_and_render_navbar():
         color: white !important;
         box-shadow: 0 4px 15px rgba(92, 77, 255, 0.4);
     }
-
-    /* Make the navigation wrap nicely on mobile */
-    @media (max-width: 768px) {
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) {
-            flex-direction: row !important;
-            flex-wrap: wrap !important;
-            justify-content: center !important;
-            padding-bottom: 10px;
-        }
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div {
-            min-width: auto !important;
-            flex: 0 0 auto !important;
-            width: auto !important;
-            margin: 2px 5px !important;
-        }
-        /* Make the logo column take full width to push links to the next line */
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div:nth-child(1) {
-            flex: 0 0 100% !important;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 15px !important;
-        }
-        /* Hide empty spaces */
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div:nth-child(2),
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div:nth-child(8) {
-            display: none !important;
-        }
-    }
 </style>
 """, unsafe_allow_html=True)
 
+    # Desktop Top Navbar
     with st.container():
         # Layout columns
         logo_col, space1, nav1, nav2, nav3, nav4, nav5, space2 = st.columns([3, 1, 1.2, 1.2, 1.4, 1.2, 1.2, 2])
@@ -113,3 +123,12 @@ def hide_sidebar_and_render_navbar():
             st.page_link("pages/4_Analytics.py", label="Analytics")
         with nav5:
             st.page_link("pages/5_Profile.py", label="Profile")
+
+    # Mobile Sidebar Navbar
+    with st.sidebar:
+        st.markdown('<div class="logo-text" style="margin-bottom: 20px;"><span class="logo-pill">&lt;/&gt;</span> Interv0id</div>', unsafe_allow_html=True)
+        st.page_link("Home.py", label="Home", icon="🏠")
+        st.page_link("pages/1_Onboarding.py", label="Start", icon="🚀")
+        st.page_link("pages/2_Interview.py", label="Interview Room", icon="🎙️")
+        st.page_link("pages/4_Analytics.py", label="Analytics", icon="📊")
+        st.page_link("pages/5_Profile.py", label="Profile", icon="👤")

@@ -115,8 +115,8 @@ def hide_sidebar_and_render_navbar():
     # Mobile Sidebar Navbar
     with st.sidebar:
         st.markdown('<div class="logo-text" style="margin-bottom: 20px;"><span class="logo-pill">&lt;/&gt;</span> Interv0id</div>', unsafe_allow_html=True)
-        st.page_link("Home.py", label="Home", icon="🏠")
-        st.page_link("pages/1_Onboarding.py", label="Start", icon="🚀")
-        st.page_link("pages/2_Interview.py", label="Interview Room", icon="🎙️")
-        st.page_link("pages/4_Analytics.py", label="Analytics", icon="📊")
-        st.page_link("pages/5_Profile.py", label="Profile", icon="👤")
+        st.page_link("Home.py", label="Home", icon=None)
+        st.page_link("pages/1_Onboarding.py", label="Start", icon=None)
+        st.page_link("pages/2_Interview.py", label="Interview Room", icon=None)
+        st.page_link("pages/4_Analytics.py", label="Analytics", icon=None)
+        st.page_link("pages/5_Profile.py", label="Profile", icon=None)

@@ -35,29 +35,17 @@ def hide_sidebar_and_render_navbar():
     /* Hide the default Streamlit pages navigation in the sidebar */
     [data-testid="stSidebarNav"] { display: none !important; }
 
-    /* Desktop styles: Hide sidebar & header, show top navbar horizontally scrollable */
+    /* Desktop styles: Hide sidebar & header, top navbar fits on screen without scrolling */
     @media (min-width: 769px) {
         header { display: none !important; }
         [data-testid="collapsedControl"] { display: none !important; }
         [data-testid="stSidebar"] { display: none !important; }
         
+        /* Ensure the navbar block doesn't add unnecessary scrollbars */
         div[data-testid="stHorizontalBlock"]:has(.logo-text) {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-            padding-bottom: 5px;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            align-items: center;
         }
-        div[data-testid="stHorizontalBlock"]:has(.logo-text)::-webkit-scrollbar {
-            display: none;
-        }
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div {
-            min-width: max-content !important;
-            flex: 0 0 auto !important;
-            width: max-content !important;
-        }
+        /* Let Streamlit's native column flex sizing handle the widths */
     }
 
     /* Mobile styles: Show sidebar, hide top navbar */

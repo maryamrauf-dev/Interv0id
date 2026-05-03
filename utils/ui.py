@@ -66,25 +66,31 @@ def hide_sidebar_and_render_navbar():
         box-shadow: 0 4px 15px rgba(92, 77, 255, 0.4);
     }
 
-    /* Make the navigation horizontally scrollable on mobile */
+    /* Make the navigation wrap nicely on mobile */
     @media (max-width: 768px) {
         div[data-testid="stHorizontalBlock"]:has(.logo-text) {
             flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-            padding-bottom: 5px;
-            /* Hide scrollbar for a cleaner look */
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        div[data-testid="stHorizontalBlock"]:has(.logo-text)::-webkit-scrollbar {
-            display: none;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            padding-bottom: 10px;
         }
         div[data-testid="stHorizontalBlock"]:has(.logo-text) > div {
-            min-width: max-content !important;
+            min-width: auto !important;
             flex: 0 0 auto !important;
-            width: max-content !important;
+            width: auto !important;
+            margin: 2px 5px !important;
+        }
+        /* Make the logo column take full width to push links to the next line */
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div:nth-child(1) {
+            flex: 0 0 100% !important;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px !important;
+        }
+        /* Hide empty spaces */
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div:nth-child(2),
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div:nth-child(8) {
+            display: none !important;
         }
     }
 </style>

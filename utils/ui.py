@@ -69,9 +69,10 @@ def hide_sidebar_and_render_navbar():
     /* Make the navigation horizontally scrollable on mobile */
     @media (max-width: 768px) {
         div[data-testid="stHorizontalBlock"]:has(.logo-text) {
+            flex-direction: row !important;
             flex-wrap: nowrap !important;
             overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling: touch !important;
             padding-bottom: 5px;
             /* Hide scrollbar for a cleaner look */
             -ms-overflow-style: none;  /* IE and Edge */
@@ -80,9 +81,10 @@ def hide_sidebar_and_render_navbar():
         div[data-testid="stHorizontalBlock"]:has(.logo-text)::-webkit-scrollbar {
             display: none;
         }
-        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"]:has(.logo-text) > div {
             min-width: max-content !important;
             flex: 0 0 auto !important;
+            width: max-content !important;
         }
     }
 </style>
@@ -105,5 +107,3 @@ def hide_sidebar_and_render_navbar():
             st.page_link("pages/4_Analytics.py", label="Analytics")
         with nav5:
             st.page_link("pages/5_Profile.py", label="Profile")
-        
-    st.markdown("<hr style='border-color: #1e293b; margin-top: 0; margin-bottom: 2rem;'>", unsafe_allow_html=True)

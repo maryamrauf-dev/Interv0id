@@ -1,42 +1,35 @@
-import sqlite3
+import streamlit as st
 import os
 from datetime import datetime
+from supabase import create_client, Client
 
-DB_PATH = "interview_history.db"
-
+@st.cache_resource
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date TEXT,
-            score INTEGER,
-            target_role TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    # Allow fallback to environment variables for local testing without secrets
+    url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL", ""))
+    key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY", ""))
+    return create_client(url, key)
 
 def add_history(score, target_role):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    c.execute("INSERT INTO history (date, score, target_role) VALUES (?, ?, ?)", (date_str, score, target_role))
-    conn.commit()
-    conn.close()
+    try:
+        supabase: Client = init_db()
+        date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        data = {
+            "date": date_str,
+            "score": score,
+            "target_role": target_role
+        }
+        
+        supabase.table("history").insert(data).execute()
+    except Exception as e:
+        print(f"Error adding to Supabase: {e}")
 
 def get_history():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT date, score, target_role FROM history ORDER BY id DESC")
-    rows = c.fetchall()
-    conn.close()
-    history = []
-    for row in rows:
-        history.append({
-            "date": row[0],
-            "score": row[1],
-            "target_role": row[2]
-        })
-    return history
+    try:
+        supabase: Client = init_db()
+        response = supabase.table("history").select("date, score, target_role").order("id", desc=True).execute()
+        return response.data
+    except Exception as e:
+        print(f"Error fetching from Supabase: {e}")
+        return []

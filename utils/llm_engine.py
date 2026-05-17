@@ -41,7 +41,11 @@ class InterviewEngine:
             logger.error("Groq configuration failed due to missing API key.")
 
     def _get_cache_key(self, prefix, **kwargs):
-        key_parts = [prefix]
+        import uuid
+        if 'session_id' not in st.session_state:
+            st.session_state['session_id'] = str(uuid.uuid4())
+            
+        key_parts = [prefix, st.session_state['session_id']]
         for k, v in sorted(kwargs.items()):
             # Handle non-string types safely
             key_parts.append(f"{k}:{str(v)[:200]}") # limit length of value in key
@@ -52,7 +56,7 @@ class InterviewEngine:
             raise Exception("Groq client not initialized")
             
         last_error = None
-        models_to_try = [self.model_name, "llama3-8b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"]
+        models_to_try = [self.model_name, "llama3-8b-8192", "llama-3.1-8b-instant", "gemma2-9b-it"]
         
         for attempt in range(max_retries):
             current_model = models_to_try[attempt % len(models_to_try)]

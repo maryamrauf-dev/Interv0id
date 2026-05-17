@@ -10,7 +10,7 @@ def run_code_safely(code: str, timeout: int = 5) -> str:
     Prevents importing dangerous modules and using dangerous built-ins.
     """
     forbidden_imports = {'os', 'sys', 'subprocess', 'shutil', 'socket', 'urllib', 'requests'}
-    forbidden_calls = {'eval', 'exec', 'open', '__import__'}
+    forbidden_calls = {'eval', 'exec', 'open', '__import__', 'getattr', 'setattr', 'vars', 'globals', 'locals'}
     
     try:
         tree = ast.parse(code)

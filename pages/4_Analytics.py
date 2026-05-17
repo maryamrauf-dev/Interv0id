@@ -2,19 +2,23 @@ import streamlit as st
 import pandas as pd
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
+from utils.db import init_db, get_history
 
 st.set_page_config(page_title="Analytics Dashboard", layout="wide", page_icon="📊")
 hide_sidebar_and_render_navbar()
 init_session_state()
+init_db()
 
 st.title("Interview Analytics")
 
-if not st.session_state.history:
+history_data = get_history()
+
+if not history_data:
     st.info("No interview history yet. Complete an interview to see your progress!")
     if st.button("Start Now"):
         st.switch_page("pages/2_Interview.py")
 else:
-    df = pd.DataFrame(st.session_state.history)
+    df = pd.DataFrame(history_data)
     
     st.subheader("Performance over time")
     if 'score' in df.columns:

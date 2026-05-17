@@ -48,12 +48,16 @@ with col_title:
 st.write("---")
 
 def extract_pdf_text(file):
-    pdf_reader = PyPDF2.PdfReader(file)
-    text = ""
-    for page in pdf_reader.pages:
-        if page.extract_text():
-            text += page.extract_text() + "\n"
-    return text
+    try:
+        pdf_reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in pdf_reader.pages:
+            extracted = page.extract_text()
+            if extracted:
+                text += extracted + "\n"
+        return text
+    except Exception:
+        return ""
 
 if "skills_list" not in st.session_state:
     st.session_state.skills_list = []
@@ -104,6 +108,8 @@ if submit_button:
         if resume_file:
             if resume_file.name.endswith(".pdf"):
                 resume_text = extract_pdf_text(resume_file)
+                if not resume_text.strip():
+                    st.warning("Could not extract text from the PDF. It might be a scanned document or image-based. Proceeding without resume context.")
             else:
                 resume_text = str(resume_file.read(), "utf-8")
         

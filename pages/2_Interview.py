@@ -2,7 +2,8 @@ import streamlit as st
 import time
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
-from utils.llm_engine import InterviewEngine
+from utils.llm_engine import get_engine
+from utils.sandbox import run_code_safely
 from streamlit_ace import st_ace
 import sys
 from io import StringIO
@@ -13,13 +14,11 @@ st.set_page_config(page_title="Mock Interview", layout="wide", page_icon="📝")
 hide_sidebar_and_render_navbar()
 init_session_state()
 
-# Initialize Engine
-if "engine" not in st.session_state:
-    st.session_state.engine = InterviewEngine()
+# Initialize Engine handled by get_engine()
 
 def start_interview():
     with st.spinner("Generating personalized questions..."):
-        questions = st.session_state.engine.generate_questions(st.session_state.user_data)
+        questions = get_engine().generate_questions(st.session_state.user_data)
         if questions:
             st.session_state.questions = questions
             st.session_state.interview_started = True
@@ -64,12 +63,17 @@ else:
         st.subheader(f"Question {idx + 1} of {total} ({q.get('type', 'Unknown').capitalize()})")
         
         # Humanizer Logic
-        interaction_text = q.get("question", "")
-        if q.get('type') != 'coding' and len(st.session_state.answers) > 0:
-            last_ans = st.session_state.answers[-1]
-            with st.spinner("Interviewer is thinking..."):
-                humanized = st.session_state.engine.humanize_and_score(q, last_ans, st.session_state.answers)
-                interaction_text = humanized.get("next_interaction", q.get("question", ""))
+        interaction_key = f"interaction_text_{idx}"
+        if interaction_key not in st.session_state:
+            interaction_text = q.get("question", "")
+            if q.get('type') != 'coding' and len(st.session_state.answers) > 0:
+                last_ans = st.session_state.answers[-1]
+                with st.spinner("Interviewer is thinking..."):
+                    humanized = get_engine().humanize_and_score(q, last_ans, st.session_state.answers)
+                    interaction_text = humanized.get("next_interaction", q.get("question", ""))
+            st.session_state[interaction_key] = interaction_text
+        else:
+            interaction_text = st.session_state[interaction_key]
         
         st.markdown(f'<h3>{interaction_text}</h3>', unsafe_allow_html=True)
         
@@ -82,7 +86,7 @@ else:
             
         if audio_cache_key not in st.session_state:
             with st.spinner("Interviewer is speaking..."):
-                st.session_state[audio_cache_key] = st.session_state.engine.generate_tts_audio(interaction_text)
+                st.session_state[audio_cache_key] = get_engine().generate_tts_audio(interaction_text)
                 
         autoplay_audio = not st.session_state[tts_played_key]
         
@@ -114,19 +118,12 @@ else:
             
             if st.button("▶ Run & Test Code"):
                 st.write("### Execution Output:")
-                old_stdout = sys.stdout
-                sys.stdout = mystdout = StringIO()
-                try:
-                    exec(user_answer, {})
-                    val = mystdout.getvalue()
-                    if val:
-                        st.success(val)
-                    else:
-                        st.success("NO code executed.")
-                except Exception as e:
-                    st.error(f"Error: {e}")
-                finally:
-                    sys.stdout = old_stdout
+                with st.spinner("Running code in sandbox..."):
+                    val = run_code_safely(user_answer)
+                if "Error:" in val or "SyntaxError:" in val:
+                    st.error(val)
+                else:
+                    st.success(val)
             
         else:
             text_key = f"q_text_{idx}"
@@ -158,7 +155,7 @@ else:
                     st.warning("⚠️ Audio was too short! Please click the microphone once to start (it will turn red), speak, and click it again to stop.")
                 else:
                     with st.spinner("Transcribing your answer via Whisper..."):
-                        transcript = st.session_state.engine.transcribe_audio(audio_bytes)
+                        transcript = get_engine().transcribe_audio(audio_bytes)
                         if transcript and not transcript.startswith("Error"):
                             st.session_state[text_key] = (st.session_state[text_key] + " " + transcript).strip()
                         else:

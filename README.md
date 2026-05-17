@@ -75,7 +75,7 @@ AI_Interview_StreamLit/
 │   ├── 4_Analytics.py   # Performance tracking dashboard
 │   └── 5_Profile.py     # User settings 
 ├── utils/               # Shared utilities
-│   ├── llm_engine.py    # Gemini API logic and prompt engineering
+│   ├── llm_engine.py    # Groq API logic and prompt engineering
 │   ├── state.py         # Session state management
 │   └── styles.py        # Global CSS and UI components
 ├── .env                 # Environment variables (API Keys)

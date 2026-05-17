@@ -8,6 +8,8 @@ def init_db():
     # Allow fallback to environment variables for local testing without secrets
     url = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL", ""))
     key = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY", ""))
+    if not url or not key:
+        raise ValueError("Supabase credentials missing. Add SUPABASE_URL and SUPABASE_KEY to secrets.")
     return create_client(url, key)
 
 def add_history(score, target_role):

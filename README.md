@@ -77,8 +77,7 @@ AI_Interview_StreamLit/
 ├── utils/               # Shared utilities
 │   ├── llm_engine.py    # Groq API logic and prompt engineering
 │   ├── state.py         # Session state management
-│   ├── db.py            # Supabase database integration
-│   ├── sandbox.py       # Secure code execution environment
+│   ├── db.py            # Local history database integration
 │   └── ui.py            # Global CSS and UI components
 ├── .env                 # Environment variables (API Keys)
 ├── requirements.txt     # Python dependencies

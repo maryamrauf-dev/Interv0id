@@ -3,7 +3,6 @@ import time
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
 from utils.llm_engine import get_engine
-from utils.sandbox import run_code_safely
 from streamlit_ace import st_ace
 import sys
 from io import StringIO
@@ -118,12 +117,21 @@ else:
             
             if st.button("▶ Run & Test Code"):
                 st.write("### Execution Output:")
-                with st.spinner("Running code in sandbox..."):
-                    val = run_code_safely(user_answer)
-                if "Error:" in val or "SyntaxError:" in val:
-                    st.error(val)
-                else:
-                    st.success(val)
+                try:
+                    old_stdout = sys.stdout
+                    sys.stdout = mystdout = StringIO()
+                    
+                    exec(user_answer)
+                    
+                    sys.stdout = old_stdout
+                    output = mystdout.getvalue()
+                    if output:
+                        st.success(output)
+                    else:
+                        st.success("NO code executed or no output generated.")
+                except Exception as e:
+                    sys.stdout = old_stdout
+                    st.error(f"Execution Error: {str(e)}")
             
         else:
             text_key = f"q_text_{idx}"

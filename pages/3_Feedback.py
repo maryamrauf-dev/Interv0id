@@ -2,12 +2,11 @@ import streamlit as st
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
 from utils.llm_engine import get_engine
-from utils.db import init_db, add_history
+from utils.db import add_history
 
 st.set_page_config(page_title="Interview Feedback", layout="wide", page_icon="📈")
 hide_sidebar_and_render_navbar()
 init_session_state()
-init_db()
 
 st.title("Interview Feedback & Insights")
 

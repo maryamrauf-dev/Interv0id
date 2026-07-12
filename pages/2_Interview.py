@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import logging
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
 from utils.llm_engine import get_engine
@@ -9,6 +10,8 @@ from io import StringIO
 import streamlit.components.v1 as components
 from audio_recorder_streamlit import audio_recorder
 
+logger = logging.getLogger(__name__)
+
 st.set_page_config(page_title="Mock Interview", layout="wide", page_icon="📝")
 hide_sidebar_and_render_navbar()
 init_session_state()
@@ -16,15 +19,18 @@ init_session_state()
 # Initialize Engine handled by get_engine()
 
 def start_interview():
+    logger.info("User requested to start the interview.")
     with st.spinner("Generating personalized questions..."):
         questions = get_engine().generate_questions(st.session_state.user_data)
         if questions:
+            logger.info(f"Successfully generated {len(questions)} questions.")
             st.session_state.questions = questions
             st.session_state.interview_started = True
             st.session_state.current_question_index = 0
             st.session_state.answers = []
             st.rerun()
         else:
+            logger.error("Failed to generate questions. Questions list is empty or None.")
             st.error("Failed to generate questions. Please check your API key / configuration.")
 
 if not st.session_state.onboarded:
@@ -116,6 +122,7 @@ else:
             )
             
             if st.button("▶ Run & Test Code"):
+                logger.info(f"User executed code for question {idx}.")
                 st.write("### Execution Output:")
                 try:
                     old_stdout = sys.stdout
@@ -126,11 +133,14 @@ else:
                     sys.stdout = old_stdout
                     output = mystdout.getvalue()
                     if output:
+                        logger.info("Code execution produced output.")
                         st.success(output)
                     else:
+                        logger.info("Code execution produced no output.")
                         st.success("NO code executed or no output generated.")
                 except Exception as e:
                     sys.stdout = old_stdout
+                    logger.error(f"Code execution failed: {str(e)}")
                     st.error(f"Execution Error: {str(e)}")
             
         else:
@@ -179,13 +189,16 @@ else:
             
         if submit_clicked:
             if user_answer and user_answer.strip():
+                logger.info(f"User submitted answer for question {idx}.")
                 st.session_state.answers.append(user_answer)
                 st.session_state.current_question_index += 1
                 # Progress to next
                 if st.session_state.current_question_index >= total:
+                    logger.info("Interview complete! All questions answered.")
                     st.session_state.interview_complete = True
                 st.rerun()
             else:
+                logger.warning(f"User attempted to submit an empty answer for question {idx}.")
                 st.error("Please provide an answer before moving on.")
                 
         # JS script to intercept Enter key on text_area specifically for normal questions

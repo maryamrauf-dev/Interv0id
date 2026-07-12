@@ -1,5 +1,8 @@
 import streamlit as st
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def init_db():
     if 'history' not in st.session_state:
@@ -15,12 +18,12 @@ def add_history(score, target_role):
             "target_role": target_role
         })
     except Exception as e:
-        print(f"Error adding history: {e}")
+        logger.error(f"Error adding history: {e}", exc_info=True)
 
 def get_history():
     try:
         init_db()
         return list(reversed(st.session_state.history))
     except Exception as e:
-        print(f"Error fetching history: {e}")
+        logger.error(f"Error fetching history: {e}", exc_info=True)
         return []

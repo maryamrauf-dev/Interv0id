@@ -1,8 +1,11 @@
 import streamlit as st
+import logging
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
 from utils.llm_engine import get_engine
 from utils.db import add_history
+
+logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Interview Feedback", layout="wide", page_icon="📈")
 hide_sidebar_and_render_navbar()
@@ -22,6 +25,7 @@ if not st.session_state.analysis:
         st.stop()
         
     st.session_state.analysis_loading = True
+    logger.info("Starting interview analysis/evaluation.")
     with st.spinner("Analyzing your performance..."):
         analysis = get_engine().evaluate_interview(
             st.session_state.user_data,
@@ -29,6 +33,11 @@ if not st.session_state.analysis:
             st.session_state.answers
         )
         st.session_state.analysis = analysis
+        if analysis and "score" in analysis:
+            logger.info(f"Evaluation complete. Score: {analysis.get('score')}")
+        else:
+            logger.warning("Evaluation completed but no valid score found.")
+            
         # Save to history for dashboard
         add_history(
             score=analysis.get("score", 0),
@@ -62,6 +71,7 @@ with col2:
 
 st.write("---")
 if st.button("Retake Interview"):
+    logger.info("User requested to retake the interview. Resetting state.")
     st.session_state.interview_started = False
     st.session_state.current_question_index = 0
     st.session_state.answers = []

@@ -3,6 +3,10 @@ import PyPDF2
 from utils.state import init_session_state
 from utils.ui import hide_sidebar_and_render_navbar
 import streamlit.components.v1 as components
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="Interv0id", layout="centered", page_icon=None)
 hide_sidebar_and_render_navbar()
@@ -49,14 +53,17 @@ st.write("---")
 
 def extract_pdf_text(file):
     try:
+        logger.info(f"Starting PDF extraction for file: {file.name}")
         pdf_reader = PyPDF2.PdfReader(file)
         text = ""
         for page in pdf_reader.pages:
             extracted = page.extract_text()
             if extracted:
                 text += extracted + "\n"
+        logger.info(f"Successfully extracted {len(text)} characters from PDF.")
         return text
-    except Exception:
+    except Exception as e:
+        logger.error(f"Error extracting PDF text: {e}", exc_info=True)
         return ""
 
 if "skills_list" not in st.session_state:
@@ -103,15 +110,19 @@ with st.container(border=True):
     submit_button = st.button("Start 30-Min Interview >", type="primary", use_container_width=True)
 
 if submit_button:
+    logger.info("User clicked 'Start 30-Min Interview' button.")
     if name and target_role and st.session_state.skills_list:
         resume_text = ""
         if resume_file:
             if resume_file.name.endswith(".pdf"):
                 resume_text = extract_pdf_text(resume_file)
                 if not resume_text.strip():
+                    logger.warning("PDF extraction returned empty text. Likely scanned document.")
                     st.warning("Could not extract text from the PDF. It might be a scanned document or image-based. Proceeding without resume context.")
             else:
+                logger.info(f"Reading text file: {resume_file.name}")
                 resume_text = str(resume_file.read(), "utf-8")
+                logger.info(f"Successfully extracted {len(resume_text)} characters from TXT file.")
         
 
         skills_str = ", ".join(st.session_state.skills_list)
@@ -125,8 +136,10 @@ if submit_button:
             "resume_text": resume_text
         }
         st.session_state.onboarded = True
+        logger.info(f"Onboarding successful for user: {name}, role: {target_role}. Navigating to Interview page.")
         st.switch_page("pages/2_Interview.py")
     else:
+        logger.warning("User submitted incomplete onboarding form.")
         st.error("Please fill in Name, Target Role, and at least one Skill Keyword to proceed.")
 
 # JS interop for the "warning on empty enter" and "jump to next field" behaviors
